@@ -81,33 +81,6 @@ namespace Leetcode_CS.Puzzle
             return null;
         }
 
-        //bread first: how to mark the nodes have already visited??!!,time O and space O
-        //public IList<IList<Node>> FindAllPaths(Node startNode, Node endNode)
-        //{
-        //    var paths = new List<IList<Node>>();
-        //    //find next nodes for start node
-        //    var nextNodes = FindNextNodes(startNode);
-        //    foreach (var node in nextNodes)
-        //    {
-        //        if (node.Equals(endNode))
-        //        {
-        //            var path = new List<Node>();
-        //            path.Add(endNode);
-        //            paths.Add(path);
-        //            continue;
-        //        }
-        //        else
-        //        {
-        //            paths = FindAllPaths(node, endNode).ToList();
-        //            foreach (var path in paths)
-        //            {
-        //                path.Add(node);
-        //            }
-        //        }
-        //    }
-        //    return paths;
-        //}
-
         public void FindPath(Stack<Locator> locators)
         {
             if (locators.Count == 0)
@@ -214,18 +187,18 @@ namespace Leetcode_CS.Puzzle
         public int Width { get; }
         public int Height { get; }
 
-        private int[,] values;
+        public int[,] Values { get; set; }
 
         public Maze(int width, int height)
         {
             this.Width = width;
             this.Height = height;
-            this.values = new int[height, width];//create an uniform array
+            this.Values = new int[height, width];//create an uniform array
         }
 
         public void InitMaze()
         {
-            this.values= new int[,]{ 
+            this.Values= new int[,]{ 
                 { 0, 0, 1, 0, 0 }, 
                 { 0, 0, 0, 0, 0 }, 
                 { 0, 0, 0, 1, 0 },
@@ -237,7 +210,7 @@ namespace Leetcode_CS.Puzzle
         {
             if (point.X < 0 || point.Y < 0 || point.X >= Height || point.Y >= Width)
                 return false;
-            return values[point.X,point.Y] == 0;
+            return Values[point.X,point.Y] == 0;
         }
 
         public Point RollingTowardsDirection(Point start, int direction, Point end)
@@ -306,4 +279,74 @@ namespace Leetcode_CS.Puzzle
         }
     }
 
+    public class MazeSimpleSolver
+    {
+        public int SolveMaze(int[,] map, int[] start, int[] end) {
+            //init path[]
+            int[,] path = new int[map.GetLength(0), map.GetLength(1)];
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    path[i,j] = Int32.MaxValue;
+                }
+            }
+            path[start[0], start[1]] = 0;
+            dfs(map, path, new Point(start[0], start[1]));
+            return path[end[0], end[1]] == Int32.MaxValue? -1: path[end[0], end[1]];
+        }
+
+        public void dfs(int[,] map, int[,] path, Point start)
+        {
+            //travel existing node
+            // right
+            for (int j = 1; j <= map.GetLength(1) - start.Y - 1; j++)
+            {
+                if (map[start.X, start.Y + j] == 1) break;
+                //check next one and next next one
+                if (start.Y + j + 1 == map.GetLength(1) || map[start.X, start.Y + j + 1] == 1)
+                {
+                    if ( path[start.X, start.Y] + j > path[start.X, start.Y + j]) break;
+                    path[start.X, start.Y + j] = path[start.X, start.Y] + j;
+                    dfs(map, path, new Point(start.X, start.Y + j));
+                }
+            }
+            //down
+            for (int i = 1; i <= map.GetLength(0) - start.X -1; i++)
+            {
+                if (map[start.X + i, start.Y] == 1) break;
+                if (start.X + i + 1 == map.GetLength(0) || map[start.X + i + 1 , start.Y] == 1)
+                {
+                    if (path[start.X, start.Y] + i > path[start.X + i, start.Y]) break;
+                    path[start.X + i, start.Y] = path[start.X, start.Y] + i;
+                    dfs(map, path, new Point(start.X + i, start.Y));
+                }
+            }
+            //left
+            for (int m = 1; m <= start.Y; m++)
+            {
+                if (map[start.X, start.Y - m] == 1) break;
+                if (start.Y - m == 0 || map[start.X,start.Y - m - 1] == 1)
+                {
+                    if (path[start.X, start.Y] + m > path[start.X, start.Y - m]) break; ;
+                    path[start.X,start.Y -m ] = path[start.X,start.Y] + m;
+                    dfs(map, path, new Point(start.X, start.Y  - m));
+                }
+            }
+            //up
+            for (int n = 1; n <= start.X; n++)
+            {
+                if (map[start.X - n, start.Y] == 1) break;
+                if (start.X - n == 0 || map[start.X - n - 1,start.Y] == 1)
+                {
+                    if (path[start.X - n, start.Y] + n > path[start.X - n, start.Y]) break;
+                    path[start.X - n, start.Y] = path[start.X, start.Y] + n;
+                    dfs(map, path, new Point(start.X -n, start.Y));
+                }
+            }
+
+        }
+
+        
+    }
 }
