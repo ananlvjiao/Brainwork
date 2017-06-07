@@ -20,7 +20,9 @@ namespace Leetcode_CS
             //Console.ReadLine();
 
             var newSolver = new MazeSimpleSolver();
+            //var res = newSolver.SolveMaze(maze.Values, new int[] { start.X, start.Y }, new int[] { end.X, end.Y });
             var res = newSolver.SolveMaze(maze.Values, new int[] { start.X, start.Y }, new int[] { end.X, end.Y });
         }
+        
     }
 }

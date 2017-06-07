@@ -26,7 +26,7 @@ namespace Leetcode_CS.Puzzle
         {
             var point = new Point();
             //right, down, left, up
-            while(locator.CurDir < 4)
+            while (locator.CurDir < 4)
             {
                 switch (locator.CurDir)
                 {
@@ -65,7 +65,7 @@ namespace Leetcode_CS.Puzzle
         public Locator GetNextLocator(Stack<Locator> locators, Locator locator)
         {
             //right, down, left, up
-            while(locator.CurDir < 4)
+            while (locator.CurDir < 4)
             {
                 var nextPoint = Maze.RollingTowardsDirection(locator.Location, locator.CurDir, EndPoint);
                 if (nextPoint != null)
@@ -102,7 +102,7 @@ namespace Leetcode_CS.Puzzle
                 //go back to last node, move to next dir
                 locators.Pop();
             }
-            else 
+            else
             {
                 top.CurDir++;
                 locators.Push(next);
@@ -198,11 +198,11 @@ namespace Leetcode_CS.Puzzle
 
         public void InitMaze()
         {
-            this.Values= new int[,]{ 
-                { 0, 0, 1, 0, 0 }, 
-                { 0, 0, 0, 0, 0 }, 
+            this.Values = new int[,]{
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 1, 0 },
-                { 1, 1, 0, 1, 1 }, 
+                { 1, 1, 0, 1, 1 },
                 { 0, 0, 0, 0, 0 } };
         }
 
@@ -210,13 +210,13 @@ namespace Leetcode_CS.Puzzle
         {
             if (point.X < 0 || point.Y < 0 || point.X >= Height || point.Y >= Width)
                 return false;
-            return Values[point.X,point.Y] == 0;
+            return Values[point.X, point.Y] == 0;
         }
 
         public Point RollingTowardsDirection(Point start, int direction, Point end)
         {
             var next = new Point();
-            var curr = new Point(); 
+            var curr = new Point();
             next.X = start.X;
             next.Y = start.Y;
             bool bypass = false;
@@ -281,6 +281,8 @@ namespace Leetcode_CS.Puzzle
 
     public class MazeSimpleSolver
     {
+        //time complexity worst case: O(m * n * max(m, n))
+        //space complexity : O(m * n)
         public int SolveMaze(int[,] map, int[] start, int[] end) {
             //init path[]
             int[,] path = new int[map.GetLength(0), map.GetLength(1)];
@@ -293,9 +295,11 @@ namespace Leetcode_CS.Puzzle
             }
             path[start[0], start[1]] = 0;
             //dfs(map, path, new Point(start[0], start[1]));
-            betterDFS(map, path, new Point(start[0], start[1]));
+            //betterDFS(map, path, new Point(start[0], start[1]));
+            bfs(map, path, new Point(start[0], start[1]), new Point(end[0], end[1]));
             return path[end[0], end[1]] == Int32.MaxValue ? -1 : path[end[0], end[1]];
         }
+
 
         public void dfs(int[,] map, int[,] path, Point start)
         {
@@ -350,13 +354,13 @@ namespace Leetcode_CS.Puzzle
 
         public void betterDFS(int[,] map, int[,] path, Point start)
         {
-            int[][] directions = new int[4][]{new int[2]{0,1}, new int[2] { 0,-1}, new int[2] { 1, 0}, new int[2] { -1, 0}};
-            foreach(var dir in directions)
+            int[][] directions = new int[4][] { new int[2] { 0, 1 }, new int[2] { 0, -1 }, new int[2] { 1, 0 }, new int[2] { -1, 0 } };
+            foreach (var dir in directions)
             {
                 int count = 0;
                 var cursor = new Point(start.X, start.Y);
                 while (cursor.X >= 0 && cursor.X < map.GetLength(0) && cursor.Y >= 0 && cursor.Y < map.GetLength(1)
-                    && map[cursor.X,cursor.Y] != 1)
+                    && map[cursor.X, cursor.Y] != 1)
                 {
                     cursor.X += dir[0];
                     cursor.Y += dir[1];
@@ -364,13 +368,44 @@ namespace Leetcode_CS.Puzzle
                 }
                 cursor.X -= dir[0];
                 cursor.Y -= dir[1];
-                if (count > 0 && path[cursor.X,cursor.Y] > path[start.X,start.Y] + count -1)
+                if (count > 0 && path[cursor.X, cursor.Y] > path[start.X, start.Y] + count - 1)
                 {
-                    path[cursor.X, cursor.Y] = path[start.X, start.Y] + count-1;
+                    path[cursor.X, cursor.Y] = path[start.X, start.Y] + count - 1;
                     betterDFS(map, path, cursor);
                 }
             }
         }
-        
+
+        public void bfs(int[,] map, int[,] path, Point start, Point end)
+        {
+            var queue = new Queue<Point>();
+            queue.Enqueue(start);
+            var minPath = Int32.MaxValue;
+            int[][] directions = new int[4][] { new int[] { 0, 1 }, new int[] { 0, -1 }, new int[] { 1, 0 }, new int[] { -1, 0 } };
+            while (queue.Count != 0)
+            {
+                var newStart = queue.Dequeue();
+                foreach (var dir in directions)
+                {
+                    var point = new Point(newStart.X, newStart.Y);
+                    int count = 0;
+                    point.X += dir[0];
+                    point.Y += dir[1];
+                    while (point.X >= 0 && point.X < map.GetLength(0) && point.Y >= 0 && point.Y < map.GetLength(1)
+                        && map[point.X, point.Y] == 0)
+                    {
+                        point.X += dir[0];
+                        point.Y += dir[1];
+                        count++;
+                    }
+                    if (path[point.X - dir[0], point.Y - dir[1]] > path[newStart.X, newStart.Y] + count)
+                    {
+                        path[point.X - dir[0], point.Y - dir[1]] = path[newStart.X, newStart.Y] + count;
+                        queue.Enqueue(new Point(point.X - dir[0], point.Y - dir[1]));
+                    }
+                }
+            }
+        }
     }
+
 }
