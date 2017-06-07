@@ -288,12 +288,13 @@ namespace Leetcode_CS.Puzzle
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    path[i,j] = Int32.MaxValue;
+                    path[i, j] = Int32.MaxValue;
                 }
             }
             path[start[0], start[1]] = 0;
-            dfs(map, path, new Point(start[0], start[1]));
-            return path[end[0], end[1]] == Int32.MaxValue? -1: path[end[0], end[1]];
+            //dfs(map, path, new Point(start[0], start[1]));
+            betterDFS(map, path, new Point(start[0], start[1]));
+            return path[end[0], end[1]] == Int32.MaxValue ? -1 : path[end[0], end[1]];
         }
 
         public void dfs(int[,] map, int[,] path, Point start)
@@ -306,16 +307,16 @@ namespace Leetcode_CS.Puzzle
                 //check next one and next next one
                 if (start.Y + j + 1 == map.GetLength(1) || map[start.X, start.Y + j + 1] == 1)
                 {
-                    if ( path[start.X, start.Y] + j > path[start.X, start.Y + j]) break;
+                    if (path[start.X, start.Y] + j > path[start.X, start.Y + j]) break;
                     path[start.X, start.Y + j] = path[start.X, start.Y] + j;
                     dfs(map, path, new Point(start.X, start.Y + j));
                 }
             }
             //down
-            for (int i = 1; i <= map.GetLength(0) - start.X -1; i++)
+            for (int i = 1; i <= map.GetLength(0) - start.X - 1; i++)
             {
                 if (map[start.X + i, start.Y] == 1) break;
-                if (start.X + i + 1 == map.GetLength(0) || map[start.X + i + 1 , start.Y] == 1)
+                if (start.X + i + 1 == map.GetLength(0) || map[start.X + i + 1, start.Y] == 1)
                 {
                     if (path[start.X, start.Y] + i > path[start.X + i, start.Y]) break;
                     path[start.X + i, start.Y] = path[start.X, start.Y] + i;
@@ -326,27 +327,50 @@ namespace Leetcode_CS.Puzzle
             for (int m = 1; m <= start.Y; m++)
             {
                 if (map[start.X, start.Y - m] == 1) break;
-                if (start.Y - m == 0 || map[start.X,start.Y - m - 1] == 1)
+                if (start.Y - m == 0 || map[start.X, start.Y - m - 1] == 1)
                 {
                     if (path[start.X, start.Y] + m > path[start.X, start.Y - m]) break; ;
-                    path[start.X,start.Y -m ] = path[start.X,start.Y] + m;
-                    dfs(map, path, new Point(start.X, start.Y  - m));
+                    path[start.X, start.Y - m] = path[start.X, start.Y] + m;
+                    dfs(map, path, new Point(start.X, start.Y - m));
                 }
             }
             //up
             for (int n = 1; n <= start.X; n++)
             {
                 if (map[start.X - n, start.Y] == 1) break;
-                if (start.X - n == 0 || map[start.X - n - 1,start.Y] == 1)
+                if (start.X - n == 0 || map[start.X - n - 1, start.Y] == 1)
                 {
                     if (path[start.X - n, start.Y] + n > path[start.X - n, start.Y]) break;
                     path[start.X - n, start.Y] = path[start.X, start.Y] + n;
-                    dfs(map, path, new Point(start.X -n, start.Y));
+                    dfs(map, path, new Point(start.X - n, start.Y));
                 }
             }
 
         }
 
+        public void betterDFS(int[,] map, int[,] path, Point start)
+        {
+            int[][] directions = new int[4][]{new int[2]{0,1}, new int[2] { 0,-1}, new int[2] { 1, 0}, new int[2] { -1, 0}};
+            foreach(var dir in directions)
+            {
+                int count = 0;
+                var cursor = new Point(start.X, start.Y);
+                while (cursor.X >= 0 && cursor.X < map.GetLength(0) && cursor.Y >= 0 && cursor.Y < map.GetLength(1)
+                    && map[cursor.X,cursor.Y] != 1)
+                {
+                    cursor.X += dir[0];
+                    cursor.Y += dir[1];
+                    count++;
+                }
+                cursor.X -= dir[0];
+                cursor.Y -= dir[1];
+                if (count > 0 && path[cursor.X,cursor.Y] > path[start.X,start.Y] + count -1)
+                {
+                    path[cursor.X, cursor.Y] = path[start.X, start.Y] + count-1;
+                    betterDFS(map, path, cursor);
+                }
+            }
+        }
         
     }
 }
