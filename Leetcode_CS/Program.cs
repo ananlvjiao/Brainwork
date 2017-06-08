@@ -14,14 +14,18 @@ namespace Leetcode_CS
             var maze = new Maze(5, 5);
             maze.InitMaze();
             var start = new Point(0,4);
-            var end = new Point(4,4); //new Point(3,2);
+            var end = new Point(4, 4); 
+            var end2= new Point(3, 2);
             //var mazeSolver = new MazeSolver(maze, start, end);
             //mazeSolver.FindMinPath();
             //Console.ReadLine();
 
-            var newSolver = new MazeSimpleSolver();
+            //var newSolver = new MazeSimpleSolver();
             //var res = newSolver.SolveMaze(maze.Values, new int[] { start.X, start.Y }, new int[] { end.X, end.Y });
-            var res = newSolver.SolveMaze(maze.Values, new int[] { start.X, start.Y }, new int[] { end.X, end.Y });
+            //var res = newSolver.SolveMaze(maze.Values, new int[] { start.X, start.Y }, new int[] { end.X, end.Y });
+
+            var dijkstraSolver = new MazeDijkstraSolver();
+            var res = dijkstraSolver.DijkstraSolver(maze.Values, start, end2);
         }
         
     }

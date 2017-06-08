@@ -275,7 +275,7 @@ namespace Leetcode_CS.Puzzle
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return X*10 + Y;
         }
     }
 
@@ -380,7 +380,6 @@ namespace Leetcode_CS.Puzzle
         {
             var queue = new Queue<Point>();
             queue.Enqueue(start);
-            var minPath = Int32.MaxValue;
             int[][] directions = new int[4][] { new int[] { 0, 1 }, new int[] { 0, -1 }, new int[] { 1, 0 }, new int[] { -1, 0 } };
             while (queue.Count != 0)
             {
@@ -408,4 +407,78 @@ namespace Leetcode_CS.Puzzle
         }
     }
 
+    public class MazeDijkstraSolver
+    {
+        public int SolveMaze(int[,] map, int[] start, int[] end) { return 0; }
+
+        public int DijkstraSolver(int[,] map, Point start, Point end)
+        {
+            //union S
+            var stack = new Stack<Point>();
+            stack.Push(start);
+            var weightInStack = 0;
+            int[][] directions = new int[4][] { new int[] { 0, 1 }, new int[] { 0, -1 }, new int[] { 1, 0 }, new int[] { -1, 0 } };
+
+            var max = map.GetLength(0) * map.GetLength(1);
+            var dict = new Dictionary<Point, int>();
+            do
+            {
+                //find all nodes the top node can reach
+                var top = stack.Peek();
+                //if top is end, return;
+                if (top.Equals(end))
+                {
+                    return weightInStack;
+                }
+
+                //find all reachable nodes in 4 directions, update path
+                foreach (var dir in directions)
+                {
+                    var point = new Point(top.X, top.Y);
+                    int steps = 0;
+                    point.X += dir[0];
+                    point.Y += dir[1];
+                    while (point.X >= 0 && point.X < map.GetLength(0) && point.Y >= 0 && point.Y < map.GetLength(1)
+                        && map[point.X, point.Y] == 0)
+                    {
+                        point.X += dir[0];
+                        point.Y += dir[1];
+                        steps++;
+                    }
+                    var toPoint = new Point(point.X - dir[0], point.Y - dir[1]);
+                    if (!stack.ToList().Contains(toPoint) && steps > 0)
+                    {
+                        if (dict.ContainsKey(toPoint))
+                        {
+                            if (dict[toPoint] > steps + weightInStack)
+                            {
+                                dict[toPoint] = steps + weightInStack;
+                            }
+                        }
+                        else
+                        {
+                            dict.Add(toPoint, steps + weightInStack);
+                        }
+                    }
+                }
+                if (dict.Count == 0)
+                    return -1;
+                //find minPath point and add to S
+                var minPath = Int32.MaxValue;
+                var minPoint = new Point();
+                foreach (var pair in dict)
+                {
+                    if (pair.Value < minPath)
+                    {
+                        minPath = pair.Value;
+                        minPoint = pair.Key;
+                    }
+                }
+                dict.Remove(minPoint);
+                weightInStack = minPath;
+                stack.Push(minPoint);
+            } while (dict.Count>= 0);
+            return -1;
+        }
+    }
 }
